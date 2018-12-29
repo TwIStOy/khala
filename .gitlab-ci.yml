@@ -12,5 +12,8 @@ test:
   stage: test
 
   script:
+    - cd /builds/khala-team/khala
+    - cmake -H. -BRelease
+    - cmake --build Release
     - cd /builds/khala-team/khala/Release
     - ./khala_test
