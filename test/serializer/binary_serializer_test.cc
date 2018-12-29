@@ -29,17 +29,17 @@ TEST(BinarySerializerTest, Gen) {
   using khala::base::Serialize;
   using khala::serializer::BinarySerializer;
 
-  BinaryTestType obj;
-  obj.foo = 12;
-  obj.bar = "test_bar";
-  obj.arr = {"a", "b", "c"};
-  obj.inner.foo = 'a';
+  // BinaryTestType obj;
+  // obj.foo = 12;
+  // obj.bar = "test_bar";
+  // obj.arr = {"a", "b", "c"};
+  // obj.inner.foo = 'a';
 
-  auto buf = Serialize<BinarySerializer>(obj);
-  std::cout << "Size: " << buf.size() << std::endl;
-  std::cout << "Buffer: " << std::hex << std::setfill('0');
-  for (char ch : buf) {
-    std::cout << "0x" << std::setw(2) << static_cast<uint32_t>(ch) << ' ';
-  }
-  std::cout << std::endl;
+  // auto buf = Serialize<BinarySerializer>(obj);
+  // std::cout << "Size: " << buf.size() << std::endl;
+  // std::cout << "Buffer: " << std::hex << std::setfill('0');
+  // for (char ch : buf) {
+    // std::cout << "0x" << std::setw(2) << static_cast<uint32_t>(ch) << ' ';
+  // }
+  // std::cout << std::endl;
 }

@@ -1,0 +1,12 @@
+image: twistoywang/khala-build:release-1.2.0-rc
+
+build:
+  stage: build
+
+  before_script:
+    - cd /usr/src/gtest && cmake -H. -BRelease && cmake --build Release && cd Release && make install
+
+  script:
+    - cmake -H. -BRelease
+    - cmake --build Release
+

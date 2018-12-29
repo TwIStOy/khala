@@ -18,6 +18,15 @@ SET(khala_serializer_test_files test/serializer/json_serializer_test.cc test/ser
 
 ADD_EXECUTABLE(khala_test ${khala_base_test_files}
         ${khala_serializer_test_files})
-TARGET_LINK_LIBRARIES(khala_test gtest_main gtest uv glog gflags
-        khala_base
-        khala_serializer)
+
+FIND_LIBRARY(LIBUV libuv.a)
+      
+SET_TARGET_PROPERTIES(khala_test PROPERTIES LINK_SEARCH_START_STATIC 1)
+
+TARGET_LINK_LIBRARIES(khala_test gtest_main ${LIBUV} gtest glog gflags
+        khala_base khala_serializer)
+
+SET_TARGET_PROPERTIES(khala_test PROPERTIES LINK_SEARCH_END_STATIC 1)
+
+TARGET_LINK_LIBRARIES(khala_test pthread)
+
