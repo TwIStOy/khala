@@ -1,13 +1,16 @@
-image: twistoywang/khala-build:release-1.2.0-rc
+image: twistoywang/khala-build:release-1.3.0-rc
 
 build:
   stage: build
-
-  before_script:
-    - cd /usr/src/gtest && cmake -H. -BRelease && cmake --build Release && cd Release && make install
 
   script:
     - cd /builds/khala-team/khala
     - cmake -H. -BRelease
     - cmake --build Release
 
+test:
+  stage: test
+
+  script:
+    - cd /builds/khala-team/khala/Release
+    - ./khala_test
