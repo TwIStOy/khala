@@ -2,15 +2,15 @@
 // Author: Hawtian.Wang (twistoy.wang@gmail.com)
 //
 
-#include <khala/serializer/binary.hh>
 #include <khala/base/serialization.hh>
 #include <khala/base/utility.hh>
+#include <khala/serializer/binary.hh>
 
+#include <map>
+#include <set>
+#include <string>
 #include <type_traits>
 #include <unordered_map>
-#include <map>
-#include <string>
-#include <set>
 #include <unordered_set>
 #include <vector>
 

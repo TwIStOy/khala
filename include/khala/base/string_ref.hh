@@ -16,7 +16,7 @@ constexpr bool operator==(StringRef a, StringRef b);
 class StringRef {
  public:
   template<size_t N>
-  constexpr StringRef(const char (&arr)[N]) : begin_(arr), size_(N-1) {
+  constexpr StringRef(const char (&arr)[N]) : begin_(arr), size_(N - 1) {
     static_assert(N >= 1, "const string literal should not be empty.");
   }
 
@@ -29,8 +29,8 @@ class StringRef {
     return begin_[i];
   }
 
-  constexpr const char* Begin() const {return begin_;}
-  constexpr const char* End() const {return begin_ + size_;}
+  constexpr const char* Begin() const { return begin_; }
+  constexpr const char* End() const { return begin_ + size_; }
   constexpr size_t Size() const { return size_; }
 
  private:
@@ -39,7 +39,7 @@ class StringRef {
     if (*a == 0 || *b == 0) return false;
     if (N == 0) return true;
     if (*a != *b) return false;
-    return StringEqual(a+1, b+1, N-1);
+    return StringEqual(a + 1, b + 1, N - 1);
   }
 
   friend constexpr bool operator==(StringRef a, StringRef b);
@@ -49,7 +49,7 @@ class StringRef {
   size_t size_;
 };
 
-constexpr StringRef operator "" _ref(const char* str, size_t N) {
+constexpr StringRef operator"" _ref(const char* str, size_t N) {
   return StringRef{str, N};
 }
 
@@ -58,4 +58,4 @@ constexpr bool operator==(StringRef a, StringRef b) {
   return StringRef::StringEqual(a.Begin(), b.Begin(), a.Size());
 }
 
-} // namespace khala::base
+}  // namespace khala::base

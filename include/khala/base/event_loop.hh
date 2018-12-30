@@ -16,7 +16,7 @@ class EventLoop {
   EventLoop(EventLoop&&) noexcept;
 
   EventLoop(EventLoop const&) = delete;
-  EventLoop&operator=(EventLoop const&) = delete;
+  EventLoop& operator=(EventLoop const&) = delete;
 
   bool Run();
   bool RunOnce();
@@ -30,12 +30,9 @@ class EventLoop {
   inline uv_loop_t* LoopBase() const;
 
  private:
-  uv_loop_t *loop_;
+  uv_loop_t* loop_;
 };
 
-inline uv_loop_t* EventLoop::LoopBase() const {
-  return loop_;
-}
+inline uv_loop_t* EventLoop::LoopBase() const { return loop_; }
 
-
-} // namespace khala::base
+}  // namespace khala::base

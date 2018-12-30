@@ -37,9 +37,10 @@ TEST(BinarySerializerTest, Gen) {
 
   auto buf = Serialize<BinarySerializer>(obj);
   std::cout << "Size: " << buf.size() << std::endl;
-  std::cout << "Buffer: " << std::hex << std::setfill('0');
+  std::cout << "Buffer: " << std::endl << std::hex << std::setfill('0');
   for (char ch : buf) {
     std::cout << "0x" << std::setw(2) << static_cast<uint32_t>(ch) << ' ';
   }
   std::cout << std::endl;
 }
+

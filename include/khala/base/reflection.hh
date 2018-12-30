@@ -561,43 +561,43 @@
 
 namespace khala::base {
 
-template <typename T>
+template<typename T>
 using ReflectMembers = decltype(__reflect_members(std::declval<T>()));
 
-template <typename T, typename = void>
+template<typename T, typename = void>
 struct ReflectionInfo : std::false_type {};
 
-template <typename T>
+template<typename T>
 struct ReflectionInfo<T, std::void_t<typename ReflectMembers<T>::type>>
     : std::true_type {
   using ArrType = decltype(ReflectMembers<T>::Arr());
 };
 
-template <typename T>
+template<typename T>
 constexpr bool HasReflection_v = ReflectionInfo<T>::value;
 
 namespace reflect {
 
-template <typename T>
+template<typename T>
 constexpr const ::khala::base::StringRef ClassName = ReflectMembers<T>::Name();
 
-template <typename T>
+template<typename T>
 struct Size : std::integral_constant<size_t, ReflectMembers<T>::Value()> {};
 
-template <typename T>
+template<typename T>
 constexpr size_t Size_v = Size<T>::value;
 
-template <typename T>
+template<typename T>
 constexpr const ::khala::base::StringRef MemberName(size_t i) {
   return static_cast<typename ReflectionInfo<T>::ArrType const&>(
       ReflectMembers<T>::Arr())[i];
 }
 
-template <uint32_t I, typename T>
+template<uint32_t I, typename T>
 using MemberType = decltype(std::move(std::declval<T>()).*
                             (std::get<I>(ReflectMembers<T>::apply_impl())));
 
-template <size_t Idx, typename T>
+template<size_t Idx, typename T>
 constexpr auto&& MemberValue(T&& t) {
   return std::forward<T>(t).*(std::get<Idx>(ReflectMembers<T>::apply_impl()));
 }
@@ -605,4 +605,3 @@ constexpr auto&& MemberValue(T&& t) {
 }  // namespace reflect
 
 }  // namespace khala::base
-

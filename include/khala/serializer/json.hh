@@ -28,7 +28,7 @@ struct JsonSerializer {
 };
 
 template<typename T>
-void JsonSerializer::PushValue(const char *name, T const& value) {
+void JsonSerializer::PushValue(const char* name, T const& value) {
   if constexpr (base::IsSerializable<T>) {
     json_.emplace(name, base::Serialize<JsonSerializer>(value));
   } else {
@@ -42,6 +42,5 @@ JsonSerializer::Json_t JsonSerializer::ToJson(T const& value) {
                 "Simple type can't convert to Json_t.");
   return JsonSerializer::Json_t(value);
 }
-
 
 }  // namespace khala::serializer

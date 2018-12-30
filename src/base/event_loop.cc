@@ -2,8 +2,8 @@
 // Author: Hawtian.Wang (twistoy.wang@gmail.com)
 //
 
-#include <khala/base/event_loop.hh>
 #include <khala/base/cpp_feature.hh>
+#include <khala/base/event_loop.hh>
 
 namespace khala::base {
 
@@ -20,33 +20,20 @@ EventLoop::~EventLoop() {
   }
 }
 
-EventLoop::EventLoop(EventLoop && rhs) noexcept : loop_(rhs.loop_) {
+EventLoop::EventLoop(EventLoop&& rhs) noexcept : loop_(rhs.loop_) {
   rhs.loop_ = nullptr;
 }
 
-bool EventLoop::Run() {
-  return uv_run(loop_, UV_RUN_DEFAULT) == 0;
-}
+bool EventLoop::Run() { return uv_run(loop_, UV_RUN_DEFAULT) == 0; }
 
-bool EventLoop::RunOnce() {
-  return uv_run(loop_, UV_RUN_ONCE) == 0;
-}
+bool EventLoop::RunOnce() { return uv_run(loop_, UV_RUN_ONCE) == 0; }
 
-bool EventLoop::RunNoWait() {
-  return uv_run(loop_, UV_RUN_NOWAIT) == 0;
-}
+bool EventLoop::RunNoWait() { return uv_run(loop_, UV_RUN_NOWAIT) == 0; }
 
-void EventLoop::Stop() {
-  uv_stop(loop_);
-}
+void EventLoop::Stop() { uv_stop(loop_); }
 
-void EventLoop::UpdateTime() {
-  uv_update_time(loop_);
-}
+void EventLoop::UpdateTime() { uv_update_time(loop_); }
 
-int64_t EventLoop::Now() const {
-  return uv_now(loop_);
-}
+int64_t EventLoop::Now() const { return uv_now(loop_); }
 
 }  // namespace khala::base
-

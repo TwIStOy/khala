@@ -10,10 +10,10 @@
 namespace khala::base {
 
 enum Endianness : uint32_t {
-  HL_LITTLE_ENDIAN   = 0x00000001,
-  HL_BIG_ENDIAN      = 0x01000000,
-  HL_PDP_ENDIAN      = 0x00010000,
-  HL_UNKNOWN_ENDIAN  = 0xFFFFFFFF
+  HL_LITTLE_ENDIAN = 0x00000001,
+  HL_BIG_ENDIAN = 0x01000000,
+  HL_PDP_ENDIAN = 0x00010000,
+  HL_UNKNOWN_ENDIAN = 0xFFFFFFFF
 };
 
 /**
@@ -34,19 +34,17 @@ constexpr Endianness GetEndianOrder() {
   }
 }
 
-template<typename T,
-    typename = std::void_t<>,
-    typename = std::void_t<>,
-    typename = std::void_t<>>
+template<typename T, typename = std::void_t<>, typename = std::void_t<>,
+         typename = std::void_t<>>
 struct IsIterable : std::false_type {};
 
 template<typename T>
-struct IsIterable<
-    T, std::void_t<decltype(std::declval<T>().size())>,
-    std::void_t<decltype(std::declval<T>().begin())>,
-    std::void_t<decltype(std::declval<T>().end())>> : std::true_type {};
+struct IsIterable<T, std::void_t<decltype(std::declval<T>().size())>,
+                  std::void_t<decltype(std::declval<T>().begin())>,
+                  std::void_t<decltype(std::declval<T>().end())>>
+    : std::true_type {};
 
 template<typename T>
 constexpr bool IsIterable_v = IsIterable<T>::value;
 
-} // namespace khala::base
+}  // namespace khala::base

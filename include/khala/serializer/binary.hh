@@ -4,8 +4,8 @@
 
 #pragma once  // NOLINT
 
-#include <khala/base/utility.hh>
 #include <khala/base/serialization.hh>
+#include <khala/base/utility.hh>
 
 #include <vector>
 
@@ -28,7 +28,7 @@ struct BinarySerializer {
 namespace detail {
 
 template<typename T>
-void PushIntegral(BinarySerializer::Buffer_t *buffer, T const& value) {
+void PushIntegral(BinarySerializer::Buffer_t* buffer, T const& value) {
   static_assert(std::is_integral_v<T>);
 
   union {
@@ -77,12 +77,11 @@ void PushValueImpl(BinarySerializer::Buffer_t* buffer,
   PushValueImpl(buffer, value.second);
 }
 
-} // namespace detail
+}  // namespace detail
 
 template<typename T>
-void BinarySerializer::PushValue(const char *name, T const& value) {
+void BinarySerializer::PushValue(const char* name, T const& value) {
   detail::PushValueImpl(&buffer_, value);
 }
 
-
-} // namespace khala
+}  // namespace khala::serializer

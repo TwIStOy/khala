@@ -17,7 +17,7 @@
 
 namespace khala::base {
 
-template <typename... Elem>
+template<typename... Elem>
 class EventQueue {
  public:
   using Rebind_t = EventQueue<Elem...>;
@@ -30,11 +30,11 @@ class EventQueue {
 
   void SetMaxSize(uint32_t max_size);
 
-  template <typename Func>
-  void RegisterCallback(Func &&cb);
+  template<typename Func>
+  void RegisterCallback(Func&& cb);
 
-  template <typename... Args, typename = typename std::enable_if_t<
-                                  (std::is_convertible_v<Args, Elem> && ...)>>
+  template<typename... Args, typename = typename std::enable_if_t<
+                                 (std::is_convertible_v<Args, Elem> && ...)>>
   bool Push(Args&&... elements);
 
   bool IsEmpty();
@@ -49,7 +49,7 @@ class EventQueue {
 
   void TakeAll(std::vector<StorageType>*);
 
-  template <std::size_t... Index>
+  template<std::size_t... Index>
   void InvokeCallback(StorageType event, std::index_sequence<Index...>);
 
  private:
@@ -64,13 +64,13 @@ class EventQueue {
   uv_async_t async_{};
 };
 
-template <typename... Elem>
+template<typename... Elem>
 EventQueue<Elem...>::EventQueue(EventLoop* loop, uint32_t max_size)
     : loop_(loop), max_size_(max_size) {
   uv_async_init(loop->LoopBase(), &async_, &EventQueue::UvAsyncCallback);
 }
 
-template <typename... Elem>
+template<typename... Elem>
 void EventQueue<Elem...>::UvAsyncCallback(uv_async_t* handle) {
   auto* self = static_cast<Rebind_t*>(handle->data);
 
@@ -87,19 +87,19 @@ void EventQueue<Elem...>::UvAsyncCallback(uv_async_t* handle) {
   }
 }
 
-template <typename... Elem>
+template<typename... Elem>
 void EventQueue<Elem...>::SetMaxSize(uint32_t max_size) {
   max_size_ = max_size;
 }
 
-template <typename... Elem>
-template <typename Func>
-void EventQueue<Elem...>::RegisterCallback(Func &&cb) {
+template<typename... Elem>
+template<typename Func>
+void EventQueue<Elem...>::RegisterCallback(Func&& cb) {
   callback_ = Callback_t{std::forward<Func>(cb)};
 }
 
-template <typename... Elem>
-template <typename... Args, typename>
+template<typename... Elem>
+template<typename... Args, typename>
 bool EventQueue<Elem...>::Push(Args&&... elements) {
   if (closed_) {
     LOG(WARNING)
@@ -127,19 +127,19 @@ bool EventQueue<Elem...>::Push(Args&&... elements) {
   return true;
 }
 
-template <typename... Elem>
+template<typename... Elem>
 bool EventQueue<Elem...>::IsEmpty() {
   std::unique_lock<std::mutex> lock(queue_lock_);
   return queue_.empty();
 }
 
-template <typename... Elem>
+template<typename... Elem>
 bool EventQueue<Elem...>::IsClosed() {
   std::unique_lock<std::mutex> lock(queue_lock_);
   return queue_ == nullptr;
 }
 
-template <typename... Elem>
+template<typename... Elem>
 void EventQueue<Elem...>::Close() {
   std::unique_lock<std::mutex> lock(queue_lock_);
   if (!queue_.empty()) {
@@ -151,7 +151,7 @@ void EventQueue<Elem...>::Close() {
   uv_close(reinterpret_cast<uv_handle_t*>(&async_), nullptr);
 }
 
-template <typename... Elem>
+template<typename... Elem>
 void EventQueue<Elem...>::TakeAll(std::vector<EventQueue::StorageType>* vec) {
   std::unique_lock<std::mutex> lock(queue_lock_);
 
@@ -166,13 +166,13 @@ void EventQueue<Elem...>::TakeAll(std::vector<EventQueue::StorageType>* vec) {
   }
 }
 
-template <typename... Elem>
+template<typename... Elem>
 EventQueue<Elem...>::~EventQueue() {
   Close();
 }
 
-template <typename... Elem>
-template <size_t... Index>
+template<typename... Elem>
+template<size_t... Index>
 void EventQueue<Elem...>::InvokeCallback(EventQueue::StorageType event,
                                          std::index_sequence<Index...>) {
   if (callback_) {

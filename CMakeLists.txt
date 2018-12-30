@@ -5,14 +5,19 @@ SET(CMAKE_CXX_STANDARD 17)
 
 INCLUDE_DIRECTORIES(include)
 
-SET(khala_base_files src/base/event_loop.cc main.cpp include/khala/base/macro_helper.hh include/khala/serializer/binary.hh)
-SET(khala_serializer_files src/serializer/json.cc src/serializer/binary.cc)
+SET(khala_base_files src/base/event_loop.cc
+                     include/khala/base/macro_helper.hh
+                     include/khala/serializer/binary.hh)
+
+SET(khala_serializer_files src/serializer/json.cc
+                           src/serializer/binary.cc)
 
 ADD_LIBRARY(khala_base ${khala_base_files})
 ADD_LIBRARY(khala_serializer ${khala_serializer_files})
 
 SET(khala_base_test_files test/base/event_queue_test.cc
-        test/base/reflection_test.cc test/base/utility_test.cc)
+                          test/base/reflection_test.cc
+                          test/base/utility_test.cc)
 
 SET(khala_serializer_test_files test/serializer/json_serializer_test.cc test/serializer/binary_serializer_test.cc)
 
