@@ -28,7 +28,7 @@ struct BinarySerializer {
 namespace detail {
 
 template<typename T>
-void PushIntegral(BinarySerializer::Buffer_t *buffer, const T &value) {
+void PushIntegral(BinarySerializer::Buffer_t *buffer, T const& value) {
   static_assert(std::is_integral_v<T>);
 
   union {
@@ -80,7 +80,7 @@ void PushValueImpl(BinarySerializer::Buffer_t* buffer,
 } // namespace detail
 
 template<typename T>
-void BinarySerializer::PushValue(const char *name, const T &value) {
+void BinarySerializer::PushValue(const char *name, T const& value) {
   detail::PushValueImpl(&buffer_, value);
 }
 
