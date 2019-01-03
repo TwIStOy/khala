@@ -24,7 +24,8 @@ ADD_LIBRARY(khala_third_party ${khala_third_party_files})
 SET(khala_base_test_files test/base/event_queue_test.cc
                           test/base/reflection_test.cc
                           test/base/utility_test.cc
-                          test/base/buffer_test.cc)
+                          test/base/buffer_test.cc
+                          test/base/emitter_test.cc)
 
 SET(khala_serializer_test_files test/serializer/json_serializer_test.cc test/serializer/binary_serializer_test.cc)
 

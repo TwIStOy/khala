@@ -48,8 +48,11 @@ class __Buffer : std::enable_shared_from_this<__Buffer<PtrType>> {
   PtrType<char[]> buffer_;
 };
 
+template<typename T>
+using UniquePtr = std::unique_ptr<T>;
+
 using SharedBuffer = __Buffer<std::shared_ptr>;
-using UniqueBuffer = __Buffer<std::unique_ptr>;
+using UniqueBuffer = __Buffer<UniquePtr>;
 
 }  // namespace khala::base
 

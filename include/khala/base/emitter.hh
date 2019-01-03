@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <functional>
+#include <iostream>
 #include <list>
 #include <memory>
 #include <type_traits>
@@ -21,23 +22,23 @@ struct Emitter {
   struct BaseHandler {
     virtual bool Empty() const noexcept = 0;
     virtual void Clear() noexcept = 0;
-    virtual ~BaseHandler() noexcept;
+
+    virtual ~BaseHandler() noexcept = default;
   };
 
   template<typename Event>
   struct Handler final : BaseHandler {
     using Listener = std::function<void(Event&, T&)>;
     struct Element {
-      Element(bool arg1, Listener arg2)
-          : to_disable(arg1), listener(std::move(arg2)) {}
+      Element(Listener l) : to_delete(false), listener(std::move(l)) {}
 
       Element(Element const&) = delete;
       Element(Element&&) = default;
 
-      bool to_disable;
+      bool to_delete;
       Listener listener;
     };
-    using ListenerList = std::list<Listener>;
+    using ListenerList = std::list<Element>;
     using Connection = typename ListenerList::iterator;
 
     bool Empty() const noexcept final;
@@ -50,10 +51,12 @@ struct Emitter {
 
     void Erase(Connection conn) noexcept;
 
-    void Emit(Event& event, T& t_ref);
+    void Emit(Event event, T& t_ref);
+
+    virtual ~Handler() = default;
 
    private:
-    bool publishing_{false};
+    bool emitting_{false};
     ListenerList once_listeners_{};
     ListenerList on_listeners_{};
   };
@@ -80,7 +83,7 @@ struct Emitter {
   template<typename Event>
   struct Connection : private Handler<Event>::Connection {
     template<typename>
-    friend class Emitter;
+    friend struct Emitter;
 
     Connection() = default;
     Connection(const Connection&) = default;
@@ -107,10 +110,10 @@ struct Emitter {
   template<typename Event>
   void Clear();
 
-  bool Empty();
+  bool Empty() const noexcept;
 
   template<typename Event>
-  bool Empty();
+  bool Empty() const noexcept;
 
  private:
   std::vector<std::unique_ptr<BaseHandler>> handlers_;
@@ -119,7 +122,7 @@ struct Emitter {
 template<typename T>
 template<typename Event>
 bool Emitter<T>::Handler<Event>::Empty() const noexcept {
-  auto func = [](auto&& ele) { return ele.to_disable; };
+  auto func = [](auto&& ele) { return ele.to_delete; };
   return std::all_of(once_listeners_.cbegin(), once_listeners_.cend(), func) &&
          std::all_of(on_listeners_.cbegin(), on_listeners_.cend(), func);
 }
@@ -127,8 +130,8 @@ bool Emitter<T>::Handler<Event>::Empty() const noexcept {
 template<typename T>
 template<typename Event>
 void Emitter<T>::Handler<Event>::Clear() noexcept {
-  if (publishing_) {
-    auto func = [](auto&& ele) { ele.to_disable = true; };
+  if (emitting_) {
+    auto func = [](auto&& ele) { ele.to_delete = true; };
     std::for_each(once_listeners_.begin(), once_listeners_.end(), func);
     std::for_each(on_listeners_.begin(), on_listeners_.end(), func);
   } else {
@@ -141,23 +144,23 @@ template<typename T>
 template<typename Event>
 typename Emitter<T>::template Handler<Event>::Connection
 Emitter<T>::Handler<Event>::Once(Emitter<T>::Handler<Event>::Listener func) {
-  once_listeners_.emplace(once_listeners_.cend(), false, std::move(func));
+  return once_listeners_.emplace(once_listeners_.cend(), std::move(func));
 }
 
 template<typename T>
 template<typename Event>
 typename Emitter<T>::template Handler<Event>::Connection
 Emitter<T>::Handler<Event>::On(Emitter<T>::Handler<Event>::Listener func) {
-  on_listeners_.emplace(once_listeners_.cend(), false, std::move(func));
+  return on_listeners_.emplace(on_listeners_.cend(), std::move(func));
 }
 
 template<typename T>
 template<typename Event>
 void Emitter<T>::Handler<Event>::Erase(Connection conn) noexcept {
-  conn->to_disable = true;
+  conn->to_delete = true;
 
-  if (!publishing_) {
-    auto func = [](auto&& ele) { return ele.to_disable; };
+  if (!emitting_) {
+    auto func = [](auto&& ele) { return ele.to_delete; };
 
     once_listeners_.remove_if(func);
     on_listeners_.remove_if(func);
@@ -166,24 +169,24 @@ void Emitter<T>::Handler<Event>::Erase(Connection conn) noexcept {
 
 template<typename T>
 template<typename Event>
-void Emitter<T>::Handler<Event>::Emit(Event& event, T& t_ref) {
+void Emitter<T>::Handler<Event>::Emit(Event event, T& t_ref) {
   ListenerList curr{};
   once_listeners_.swap(curr);
 
   auto func = [&event, &t_ref](auto&& ele) {
-    if (!ele.to_disable) {
+    if (!ele.to_delete) {
       ele.listener(event, t_ref);
     }
   };
 
-  publishing_ = true;
+  emitting_ = true;
 
   std::for_each(on_listeners_.rbegin(), on_listeners_.rend(), func);
   std::for_each(curr.rbegin(), curr.rend(), func);
 
-  publishing_ = false;
+  emitting_ = false;
 
-  on_listeners_.remove_if([](auto&& element) { return element.first; });
+  on_listeners_.remove_if([](auto&& element) { return element.to_delete; });
 }
 
 template<typename T>
@@ -201,7 +204,8 @@ size_t Emitter<T>::EventTypeId() {
 
 template<typename T>
 template<typename Event>
-Emitter<T>::Handler<Event>* Emitter<T>::GetHandler() noexcept {
+typename Emitter<T>::template Handler<Event>*
+Emitter<T>::GetHandler() noexcept {
   size_t type = EventTypeId<Event>();
 
   if (!(type < handlers_.size())) {
@@ -212,13 +216,13 @@ Emitter<T>::Handler<Event>* Emitter<T>::GetHandler() noexcept {
     handlers_[type] = std::make_unique<Handler<Event>>();
   }
 
-  return handlers_[type].get();
+  return reinterpret_cast<Handler<Event>*>(handlers_[type].get());
 }
 
 template<typename T>
 template<typename Event>
 void Emitter<T>::Emit(Event e) {
-  GetHandler<Event>()->Emit(std::move(e), *this);
+  GetHandler<Event>()->Emit(std::move(e), *static_cast<T*>(this));
 }
 
 template<typename T>
@@ -228,14 +232,16 @@ Emitter<T>::~Emitter() noexcept {
 
 template<typename T>
 template<typename Event>
-Emitter<T>::Connection<Event> Emitter<T>::On(Listener<Event> listener) {
-  GetHandler<Event>()->On(std::move(listener));
+typename Emitter<T>::template Connection<Event> Emitter<T>::On(
+    Listener<Event> listener) {
+  return GetHandler<Event>()->On(std::move(listener));
 }
 
 template<typename T>
 template<typename Event>
-Emitter<T>::Connection<Event> Emitter<T>::Once(Listener<Event> listener) {
-  GetHandler<Event>()->Once(std::move(listener));
+typename Emitter<T>::template Connection<Event> Emitter<T>::Once(
+    Listener<Event> listener) {
+  return GetHandler<Event>()->Once(std::move(listener));
 }
 
 template<typename T>
@@ -260,21 +266,21 @@ void Emitter<T>::Clear() {
 }
 
 template<typename T>
-bool Emitter<T>::Empty() {
-  for (auto&& handler : handlers_) {
-    if (handler) {
-      if (!handler->Empty()) {
-        return false;
-      }
-    }
-  }
-  return true;
+bool Emitter<T>::Empty() const noexcept {
+  return std::all_of(handlers_.cbegin(), handlers_.cend(),
+                     [](auto&& hdlr) { return !hdlr || hdlr->Empty(); });
 }
 
 template<typename T>
 template<typename Event>
-bool Emitter<T>::Empty() {
-  return GetHandler<Event>()->Empty();
+bool Emitter<T>::Empty() const noexcept {
+  size_t id = EventTypeId<Event>();
+
+  if (id >= handlers_.size()) {
+    return true;
+  }
+
+  return !handlers_[id] || handlers_[id]->Empty();
 }
 
 }  // namespace khala::base
