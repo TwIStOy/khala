@@ -10,13 +10,14 @@
 #include <functional>
 #include <list>
 #include <memory>
+#include <type_traits>
 #include <vector>
 
 namespace khala::base {
 
 template<typename T>
 struct Emitter {
- public:
+ private:
   struct BaseHandler {
     virtual bool Empty() const noexcept = 0;
     virtual void Clear() noexcept = 0;
@@ -56,6 +57,60 @@ struct Emitter {
     ListenerList once_listeners_{};
     ListenerList on_listeners_{};
   };
+
+  template<typename Event>
+  Handler<Event>* GetHandler() noexcept;
+
+ protected:
+  template<typename Event>
+  void Publish(Event e);
+
+ private:
+  static size_t NextId();
+
+  template<typename>
+  static size_t EventTypeId();
+
+ public:
+  template<typename Event>
+  using Listener = typename Handler<Event>::Listener;
+
+  virtual ~Emitter() noexcept;
+
+  template<typename Event>
+  struct Connection : private Handler<Event>::Connection {
+    template<typename>
+    friend class Emitter;
+
+    Connection() = default;
+    Connection(const Connection&) = default;
+    Connection(Connection&&) = default;
+
+    Connection(typename Handler<Event>::Connection conn)
+        : Handler<Event>::Connection{std::move(conn)} {}
+
+    Connection& operator=(const Connection&) = default;
+    Connection& operator=(Connection&&) = default;
+  };
+
+  template<typename Event>
+  Connection<Event> On(Listener<Event> listener);
+
+  template<typename Event>
+  Connection<Event> Once(Listener<Event> listener);
+
+  template<typename Event>
+  void Erase(Connection<Event> conn) noexcept;
+
+  void Clear();
+
+  template<typename Event>
+  void Clear();
+
+  bool Empty();
+
+  template<typename Event>
+  bool Empty();
 
  private:
   std::vector<std::unique_ptr<BaseHandler>> handlers_;
@@ -131,4 +186,96 @@ void Emitter<T>::Handler<Event>::Publish(Event& event, T& t_ref) {
   on_listeners_.remove_if([](auto&& element) { return element.first; });
 }
 
+template<typename T>
+size_t Emitter<T>::NextId() {
+  static size_t counter = 0;
+  return counter++;
+}
+
+template<typename T>
+template<typename>
+size_t Emitter<T>::EventTypeId() {
+  static size_t id = NextId();
+  return id;
+}
+
+template<typename T>
+template<typename Event>
+Emitter<T>::Handler<Event>* Emitter<T>::GetHandler() noexcept {
+  size_t type = EventTypeId<Event>();
+
+  if (!(type < handlers_.size())) {
+    handlers_.resize(type + 1);
+  }
+
+  if (!handlers_[type]) {
+    handlers_[type] = std::make_unique<Handler<Event>>();
+  }
+
+  return handlers_[type].get();
+}
+
+template<typename T>
+template<typename Event>
+void Emitter<T>::Publish(Event e) {
+  GetHandler<Event>()->Publish(std::move(e), *this);
+}
+
+template<typename T>
+Emitter<T>::~Emitter() noexcept {
+  static_assert(std::is_base_of_v<Emitter<T>, T>, "FIX IT!!!");
+}
+
+template<typename T>
+template<typename Event>
+Emitter<T>::Connection<Event> Emitter<T>::On(Listener<Event> listener) {
+  GetHandler<Event>()->On(std::move(listener));
+}
+
+template<typename T>
+template<typename Event>
+Emitter<T>::Connection<Event> Emitter<T>::Once(Listener<Event> listener) {
+  GetHandler<Event>()->Once(std::move(listener));
+}
+
+template<typename T>
+template<typename Event>
+void Emitter<T>::Erase(Emitter<T>::Connection<Event> conn) noexcept {
+  GetHandler<Event>()->Erase(std::move(conn));
+}
+
+template<typename T>
+void Emitter<T>::Clear() {
+  for (auto&& handler : handlers_) {
+    if (handler) {
+      handler->Clear();
+    }
+  }
+}
+
+template<typename T>
+template<typename Event>
+void Emitter<T>::Clear() {
+  GetHandler<Event>()->Clear();
+}
+
+template<typename T>
+bool Emitter<T>::Empty() {
+  for (auto&& handler : handlers_) {
+    if (handler) {
+      if (!handler->Empty()) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+template<typename T>
+template<typename Event>
+bool Emitter<T>::Empty() {
+  return GetHandler<Event>()->Empty();
+}
+
 }  // namespace khala::base
+
