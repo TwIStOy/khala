@@ -1,6 +1,6 @@
-
 Khala project
 =============
+[![pipeline status](https://gitlab.com/khala-team/khala/badges/master/pipeline.svg)](https://gitlab.com/khala-team/khala/commits/master)
 
 All in one library based on `libuv`. Inspired by `media_server_library`.
 
