@@ -13,7 +13,8 @@
 
 namespace khala::base {
 
-class EventLoop final : public std::enable_shared_from_this<EventLoop> {
+class EventLoop final : public Emitter<EventLoop>,
+                        public std::enable_shared_from_this<EventLoop> {
  public:
   using Time_t = std::chrono::duration<uint64_t, std::milli>;
 
