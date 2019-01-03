@@ -7,6 +7,7 @@
 #include <uv.h>
 
 #include <khala/base/emitter.hh>
+#include <khala/base/builtin_events.hh>
 
 #include <chrono>
 #include <memory>
@@ -26,9 +27,11 @@ class EventLoop final : public Emitter<EventLoop>,
   EventLoop(EventLoop const&) = delete;
   EventLoop& operator=(EventLoop const&) = delete;
 
-  bool Run();
-  bool RunOnce();
-  bool RunNoWait();
+  bool Run() noexcept;
+  bool RunOnce() noexcept;
+  bool RunNoWait() noexcept;
+
+  bool Alive() const noexcept;
 
   void Stop();
 

@@ -24,11 +24,15 @@ EventLoop::EventLoop(EventLoop&& rhs) noexcept : loop_(rhs.loop_) {
   rhs.loop_ = nullptr;
 }
 
-bool EventLoop::Run() { return uv_run(loop_, UV_RUN_DEFAULT) == 0; }
+bool EventLoop::Run() noexcept { return uv_run(loop_, UV_RUN_DEFAULT) == 0; }
 
-bool EventLoop::RunOnce() { return uv_run(loop_, UV_RUN_ONCE) == 0; }
+bool EventLoop::RunOnce() noexcept { return uv_run(loop_, UV_RUN_ONCE) == 0; }
 
-bool EventLoop::RunNoWait() { return uv_run(loop_, UV_RUN_NOWAIT) == 0; }
+bool EventLoop::RunNoWait() noexcept {
+  return uv_run(loop_, UV_RUN_NOWAIT) == 0;
+}
+
+bool EventLoop::Alive() const noexcept { return !(uv_loop_alive(loop_) == 0); }
 
 void EventLoop::Stop() { uv_stop(loop_); }
 
