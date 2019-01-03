@@ -2,14 +2,14 @@
 // Author: Hawtian.Wang (twistoy.wang@gmail.com)
 //
 
-#include <khala/base/cpp_feature.hh>
 #include <gtest/gtest.h>
+#include <khala/base/cpp_feature.hh>
 #include <khala/base/event_loop.hh>
 #include <khala/base/event_queue.hh>
 
+#include <iostream>
 #include <string>
 #include <thread>
-#include <iostream>
 
 class MoveOnly {
  public:
@@ -20,8 +20,8 @@ class MoveOnly {
   MoveOnly(MoveOnly&&) = default;
   MoveOnly(MoveOnly const&&) = delete;
 
-  MoveOnly&operator=(MoveOnly&&) = default;
-  MoveOnly&operator=(MoveOnly const&) = delete;
+  MoveOnly& operator=(MoveOnly&&) = default;
+  MoveOnly& operator=(MoveOnly const&) = delete;
 };
 
 struct Foo {
@@ -44,15 +44,15 @@ TEST(EventQueueTest, Base) {
 
   using MoveQueueType = EventQueue<MoveOnly>;
   MoveQueueType move_queue_(&loop);
-  std::function<void(MoveOnly)> cb = [](MoveOnly){};
+  std::function<void(MoveOnly)> cb = [](MoveOnly) {};
   // expect compile well
   move_queue_.RegisterCallback(std::move(cb));
 
   QueueType q1(&loop);
   // expect compile well
-  q1.RegisterCallback([](int, std::string){});
+  q1.RegisterCallback([](int, std::string) {});
 
-  int64_t end_time = 0;
+  EventLoop::Time_t end_time{0};
   auto functor = [&loop, &end_time](int i, std::string s) {
     LOG_EVERY_N(INFO, 10000) << "Got i: " << i << ", s: " << s;
     if (PREFER_FALSE(i == kStop - 1)) {
@@ -66,7 +66,6 @@ TEST(EventQueueTest, Base) {
   QueueType q2(&loop);
   q2.RegisterCallback(std::ref(functor));
 
-
   using std::placeholders::_1;
   using std::placeholders::_2;
   Foo f;
@@ -75,9 +74,7 @@ TEST(EventQueueTest, Base) {
   // expect compile well
   q3.RegisterCallback(std::bind(&Foo::DoDummy, &f, _1, _2));
 
-  auto t = std::thread([&loop](){
-    return loop.Run();
-  });
+  auto t = std::thread([&loop]() { return loop.Run(); });
 
   auto start = loop.Now();
   for (int i = 0; i < kStop; i++) {
@@ -88,6 +85,7 @@ TEST(EventQueueTest, Base) {
 
   t.join();
 
-  std::cout << "Speed: " << kStop / static_cast<double>(end_time - start)
+  std::cout << "Speed: "
+            << kStop / static_cast<double>((end_time - start).count())
             << "k qps" << std::endl;
 }

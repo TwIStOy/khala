@@ -6,10 +6,17 @@
 
 #include <uv.h>
 
+#include <khala/base/emitter.hh>
+
+#include <chrono>
+#include <memory>
+
 namespace khala::base {
 
-class EventLoop {
+class EventLoop final : public std::enable_shared_from_this<EventLoop> {
  public:
+  using Time_t = std::chrono::duration<uint64_t, std::milli>;
+
   EventLoop();
   ~EventLoop();
 
@@ -25,7 +32,7 @@ class EventLoop {
   void Stop();
 
   void UpdateTime();
-  int64_t Now() const;
+  Time_t Now() const;
 
   inline uv_loop_t* LoopBase() const;
 

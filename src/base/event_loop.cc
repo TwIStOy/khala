@@ -34,6 +34,6 @@ void EventLoop::Stop() { uv_stop(loop_); }
 
 void EventLoop::UpdateTime() { uv_update_time(loop_); }
 
-int64_t EventLoop::Now() const { return uv_now(loop_); }
+EventLoop::Time_t EventLoop::Now() const { return Time_t{uv_now(loop_)}; }
 
 }  // namespace khala::base
