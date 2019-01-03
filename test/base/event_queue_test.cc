@@ -42,8 +42,6 @@ TEST(EventQueueTest, Base) {
 
   using QueueType = EventQueue<int, std::string>;
 
-  Bar a;
-
   using MoveQueueType = EventQueue<MoveOnly>;
   MoveQueueType move_queue_(&loop);
   std::function<void(MoveOnly)> cb = [](MoveOnly){};
