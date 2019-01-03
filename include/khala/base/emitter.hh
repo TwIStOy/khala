@@ -50,7 +50,7 @@ struct Emitter {
 
     void Erase(Connection conn) noexcept;
 
-    void Publish(Event& event, T& t_ref);
+    void Emit(Event& event, T& t_ref);
 
    private:
     bool publishing_{false};
@@ -63,7 +63,7 @@ struct Emitter {
 
  protected:
   template<typename Event>
-  void Publish(Event e);
+  void Emit(Event e);
 
  private:
   static size_t NextId();
@@ -166,7 +166,7 @@ void Emitter<T>::Handler<Event>::Erase(Connection conn) noexcept {
 
 template<typename T>
 template<typename Event>
-void Emitter<T>::Handler<Event>::Publish(Event& event, T& t_ref) {
+void Emitter<T>::Handler<Event>::Emit(Event& event, T& t_ref) {
   ListenerList curr{};
   once_listeners_.swap(curr);
 
@@ -217,8 +217,8 @@ Emitter<T>::Handler<Event>* Emitter<T>::GetHandler() noexcept {
 
 template<typename T>
 template<typename Event>
-void Emitter<T>::Publish(Event e) {
-  GetHandler<Event>()->Publish(std::move(e), *this);
+void Emitter<T>::Emit(Event e) {
+  GetHandler<Event>()->Emit(std::move(e), *this);
 }
 
 template<typename T>
