@@ -16,12 +16,15 @@ SET(khala_base_files src/khala/base/event_loop.cc
 SET(khala_serializer_files src/khala/serializer/json.cc
                            src/khala/serializer/binary.cc)
 
+SET(khala_network_files src/khala/network/types.cc)
+
 SET(khala_third_party_files src/third_party/ikcp.c
                             src/third_party/fmt/posix.cc
                             src/third_party/fmt/format.cc)
 
 ADD_LIBRARY(khala_base ${khala_base_files})
 ADD_LIBRARY(khala_serializer ${khala_serializer_files})
+ADD_LIBRARY(khala_network ${khala_network_files})
 ADD_LIBRARY(khala_third_party ${khala_third_party_files})
 
 SET(khala_base_test_files test/base/event_queue_test.cc
@@ -43,6 +46,7 @@ SET_TARGET_PROPERTIES(khala_test PROPERTIES LINK_SEARCH_START_STATIC 1)
 TARGET_LINK_LIBRARIES(khala_test gtest_main ${LIBUV} gtest glog gflags
                                  khala_base
                                  khala_serializer
+                                 khala_network
                                  khala_third_party)
 
 SET_TARGET_PROPERTIES(khala_test PROPERTIES LINK_SEARCH_END_STATIC 1)
