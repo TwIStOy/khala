@@ -7,6 +7,7 @@ SET(CMAKE_C_STANDARD 11)
 ADD_COMPILE_OPTIONS(-Wall -Werror)
 
 INCLUDE_DIRECTORIES(include)
+INCLUDE_DIRECTORIES(include/third_party)
 
 SET(khala_base_files src/khala/base/event_loop.cc
                      include/khala/base/macro_helper.hh
@@ -15,7 +16,9 @@ SET(khala_base_files src/khala/base/event_loop.cc
 SET(khala_serializer_files src/khala/serializer/json.cc
                            src/khala/serializer/binary.cc)
 
-SET(khala_third_party_files src/khala/third_party/ikcp.c)
+SET(khala_third_party_files src/third_party/ikcp.c
+                            src/third_party/fmt/posix.cc
+                            src/third_party/fmt/format.cc)
 
 ADD_LIBRARY(khala_base ${khala_base_files})
 ADD_LIBRARY(khala_serializer ${khala_serializer_files})
