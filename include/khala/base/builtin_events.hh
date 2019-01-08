@@ -11,7 +11,7 @@
 namespace khala::base {
 
 struct UvErrorEvent {
-  template<typename U, typename std::enable_if_t<std::is_integral_v<U>>>
+  template<typename U, typename = std::enable_if_t<std::is_integral_v<U>>>
   explicit UvErrorEvent(U val) noexcept : error_code_{static_cast<int>(val)} {}
 
   inline const char* What() const noexcept { return uv_strerror(error_code_); }

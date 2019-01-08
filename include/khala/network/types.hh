@@ -8,6 +8,7 @@
 #include <netinet/in.h>
 
 #include <cstdint>
+#include <cstring>
 #include <string>
 
 #include "fmt/format.h"
@@ -18,6 +19,9 @@ enum class IpVersion : uint8_t { kIp4, kIp6 };
 
 class Ipv4 {
  public:
+  // port: host-order
+  static Ipv4 From(std::string const& str, uint16_t port);
+
   // network order
   Ipv4(uint32_t ip, uint16_t port) : ip_(ip), port_(port) {}
 
@@ -32,11 +36,18 @@ class Ipv4 {
 
   inline uint32_t Port() const noexcept { return ntohs(port_); }
 
+  operator sockaddr_in() const;
+
  private:
   friend struct fmt::formatter<khala::network::Ipv4>;
 
   uint32_t ip_;
   uint16_t port_;
+};
+
+class GeneralAddress {
+  public:
+    static GeneralAddress FromSockAddr(const sockaddr* addr);
 };
 
 }  // namespace khala::network

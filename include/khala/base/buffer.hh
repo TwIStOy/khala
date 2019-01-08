@@ -24,6 +24,10 @@ class __Buffer : std::enable_shared_from_this<__Buffer<PtrType>> {
     return buf;
   }
 
+  static __Buffer MoveFrom(char* buf, size_t size) {
+    return __Buffer{buf, size};
+  }
+
  public:
   __Buffer(__Buffer const&) = default;
   __Buffer(__Buffer&&) = default;
@@ -42,6 +46,8 @@ class __Buffer : std::enable_shared_from_this<__Buffer<PtrType>> {
   explicit __Buffer(size_t size) : capacity_(size), buffer_(new char[size]) {
     memset(buffer_.get(), 0, size);
   }
+
+  __Buffer(char* buf, size_t size) : capacity_(size), buffer_(buf) {}
 
  private:
   size_t capacity_;

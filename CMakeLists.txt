@@ -16,7 +16,8 @@ SET(khala_base_files src/khala/base/event_loop.cc
 SET(khala_serializer_files src/khala/serializer/json.cc
                            src/khala/serializer/binary.cc)
 
-SET(khala_network_files src/khala/network/types.cc)
+SET(khala_network_files src/khala/network/types.cc
+                        src/khala/network/udp_socket.cc)
 
 SET(khala_third_party_files src/third_party/ikcp.c
                             src/third_party/fmt/posix.cc
@@ -34,7 +35,8 @@ SET(khala_base_test_files test/base/event_queue_test.cc
                           test/base/emitter_test.cc
                           test/network/udp_socket_test.cc)
 
-SET(khala_serializer_test_files test/serializer/json_serializer_test.cc test/serializer/binary_serializer_test.cc)
+SET(khala_serializer_test_files test/serializer/json_serializer_test.cc
+                                test/serializer/binary_serializer_test.cc)
 
 ADD_EXECUTABLE(khala_test ${khala_base_test_files}
         ${khala_serializer_test_files})

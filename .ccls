@@ -5,6 +5,7 @@
 -std=c++17
 
 -I./include
+-I./include/third_party
 
 -Wall
 -Wextra
