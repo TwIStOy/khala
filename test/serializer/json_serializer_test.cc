@@ -4,7 +4,9 @@
 
 #include <gtest/gtest.h>
 #include <khala/serializer/json.hh>
+
 #include <iostream>
+#include <optional>
 
 struct InnerStruct {
   bool foo;
@@ -14,9 +16,10 @@ struct JsonSerializerTestType {
   std::string bar;
   double foobar;
   std::vector<std::string> arr;
+  std::optional<double> op_double;
   InnerStruct inner;
 };
-REFLECTION(JsonSerializerTestType, foo, bar, foobar, arr, inner);
+REFLECTION(JsonSerializerTestType, foo, bar, foobar, arr, op_double, inner);
 REFLECTION(InnerStruct, foo);
 
 TEST(JsonSerializerTest, Gen) {
@@ -30,6 +33,7 @@ TEST(JsonSerializerTest, Gen) {
   obj.foobar = 1.23;
   obj.inner.foo = true;
   obj.arr = {{"a", "b", "c"}};
+  obj.op_double = 123;
 
   std::cout << Serialize<JsonSerializer>(obj).dump(2) << std::endl;
 }

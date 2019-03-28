@@ -4,6 +4,9 @@
 
 #pragma once  // NOLINT
 
+#include <type_traits>
+#include <optional>
+
 #include <khala/base/serialization.hh>
 #include <third_party/json.hpp>
 
@@ -14,6 +17,9 @@ struct JsonSerializer {
 
   template<typename T>
   void PushValue(const char* name, T const& value);
+
+  template<typename T>
+  void PushValue(const char* name, std::optional<T> const& value);
 
   Json_t Build();
 
@@ -26,6 +32,14 @@ struct JsonSerializer {
  private:
   Json_t json_;
 };
+
+template<typename T>
+void JsonSerializer::PushValue(const char* name,
+                               std::optional<T> const& value) {
+  if (value.has_value()) {
+    PushValue(name, value.value());
+  }
+}
 
 template<typename T>
 void JsonSerializer::PushValue(const char* name, T const& value) {
