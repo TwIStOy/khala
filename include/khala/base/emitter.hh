@@ -4,8 +4,6 @@
 
 #pragma once  // NOLINT
 
-#include <uv.h>
-
 #include <algorithm>
 #include <functional>
 #include <iostream>
